@@ -98,12 +98,12 @@ public:
     // = 
     Doctor& operator=(const Doctor& d) {
         if (this != &d) {
-            this->nume = d.nume; 
+            this->nume = d.nume;
             if (this->specializare != NULL) {
                 delete[]this->specializare;
             }
-            this->specializare = new char[strlen(d.specializare) + 1]; 
-            strcpy_s(this->specializare, strlen(d.specializare) + 1, d.specializare); 
+            this->specializare = new char[strlen(d.specializare) + 1];
+            strcpy_s(this->specializare, strlen(d.specializare) + 1, d.specializare);
             this->salariu = d.salariu;
         }
         return *this;
@@ -122,26 +122,26 @@ public:
 
     //operator citire
     friend istream& operator>>(istream& input, Doctor& d) {
-        cout << endl << "Nume: "; 
-        input >> d.nume; 
-        cout << "Specializare: "; 
+        cout << endl << "Nume: ";
+        input >> d.nume;
+        cout << "Specializare: ";
         if (d.specializare != NULL) {
             delete[]d.specializare;
         }
         char temp[100];
         //char* temp = new char[51];
         input >> temp;
-        d.specializare = new char[strlen(temp)+1];
-        strcpy_s(d.specializare, strlen(temp)+1, temp);
+        d.specializare = new char[strlen(temp) + 1];
+        strcpy_s(d.specializare, strlen(temp) + 1, temp);
         //delete[]temp;
-        cout << "Salariu: "; 
+        cout << "Salariu: ";
         input >> d.salariu;
 
-        return input; 
+        return input;
     }
 
     //post ++ 
-    Doctor operator++(int) {  
+    Doctor operator++(int) {
         Doctor temp = *this;
         this->salariu += 1000;
 
@@ -300,15 +300,47 @@ public:
 
     // pre --
     Spital operator--() {     //pre decrementare 
-        this->nrAngajati = this->nrAngajati - 10; 
+        this->nrAngajati = this->nrAngajati - 10;
         return *this;
     }
 
     //post --
     Spital operator--(int) {  //post decrementare 
-        Spital temp = *this; 
-        this->nrAngajati = this->nrAngajati - 10; 
+        Spital temp = *this;
+        this->nrAngajati = this->nrAngajati - 10;
         return temp;
+    }
+
+    //operator citire >>
+    friend istream& operator>>(istream& input, Spital& s) {
+        cout << endl << "Nume: ";
+        input >> s.nume;
+        cout << "Oras: ";
+        if (s.oras != NULL) {
+            delete[]s.oras;
+        }
+        char temp[50];
+        input >> temp;
+        s.oras = new char[strlen(temp) + 1];
+        strcpy_s(s.oras, strlen(temp) + 1, temp);
+        cout << "Domeniu: ";
+        input >> s.domeniu;
+        cout << "Numar angajati: ";
+        input >> s.nrAngajati;
+
+        return input;
+    }
+
+    //operator afisare <<
+    friend ostream& operator<<(ostream& consola, const Spital& s) {
+        consola << endl << "Nume: " << s.nume << endl;
+        consola << "Oras: " << s.oras << endl;
+        consola << "Domeniu: " << s.domeniu << endl;
+        consola << "An infiintare: " << s.anInfiintare << endl;
+        consola << "Nr angajati: " << s.nrAngajati << endl;
+        consola << "Suprafata minima salon: " << s.suprafataMinimaSalon << endl;
+
+        return consola;
     }
 
 
@@ -458,6 +490,35 @@ public:
         return gramajPastila;
     }
 
+    //operator citire >>
+    friend istream& operator>>(istream& input, Medicament& m) {
+        cout << endl << "Nume: ";
+        input >> m.nume;
+        cout << "Tip: ";
+        if (m.tip != NULL) {
+            delete[]m.tip;
+        }
+        char temp[50];
+        input >> temp;
+        m.tip = new char[strlen(temp) + 1];
+        strcpy_s(m.tip, strlen(temp) + 1, temp);
+        cout << "Gramaj: ";
+        input >> m.gramaj;
+
+        return input;
+    }
+
+    //operator afisare <<
+    friend ostream& operator<<(ostream& consola, const Medicament& m) {
+        consola << endl << "Nume: " << m.nume << endl;
+        consola << "Substanta activa: " << m.substantaActiva << endl;
+        consola << "Tip: " << m.tip << endl;
+        consola << "Gramaj: " << m.gramaj << endl;
+        consola << "TVA: " << m.TVA << endl;
+
+        return consola;
+    }
+
 
     //functie afisare : 
     void afisare() {
@@ -501,96 +562,105 @@ void schimbareInMedicamentCuReteta(Medicament& m) {
 
 
 void main() {
-    Doctor d2("Popescu Maria", "Urologie", 6000, 1963);
-    d2.afisare();
+    Doctor *vd;      //vector alocat dinamic
+    int n;
+    Spital s[3];     //vector alocat static
+    Medicament m[3];
 
-    Doctor d5; 
-    d5.afisare();
+    //Citire + Afisare Vector Doctori
+    cout << "Introduceti numar doctori: " << endl << "n = ";
+    cin >> n; 
+    vd = new Doctor[n];  //alocare memorie vector
 
-    //atribuire
-    d5 = d2; 
-    d5.afisare();
-
-    //afisare prin operator
-    cout << d5 << d2;     
-    operator<<(cout, d5);
-
-    Doctor d6;
-    //citire prin operator
-    cin >> d6;  
-    cout << d6;
-
-    //post ++ 
-    d6++; 
-    cout << d6 << endl;
-
-
-    Spital s2("Floreasca", "Bucuresti", "Public", 1949, 200);
-    s2.afisare();
-
-    Spital s3("MedLife", 2003, 60);
-    s3.afisare();
-
-    Spital s5; 
-    s5.afisare(); 
-
-    //atribuire
-    s5.operator=(s2);
-    s5.afisare();
-
-    // <
-    if (s3 < s2) {
-        cout << endl << "Spitalul " << s3.getNume() << " din orasul " << s3.getOras() << " are mai putini angajati decat spitalul " << s2.getNume() << " din orasul " << s2.getOras() << "." << endl << endl;
-    }
-    else {
-        cout << endl << "Spitalul " << s3.getNume() << " din orasul " << s3.getOras() << " are mai multi sau acelasi numar de angajati ca spitalul " << s2.getNume() << " din orasul " << s2.getOras() << "." << endl << endl;
+    cout << "Citire Vector Doctori :" << endl;
+    for (int i = 0; i < n; i++) {
+        cin >> vd[i];
     }
 
-    //pre --
-    --s2; 
-    cout << s2.getNrAngajati() << endl;
+    cout << endl << "-------------------------" << endl; 
 
-    //post --
-    s2--; 
-    cout << s2.getNrAngajati() << endl;
-
-
-    Medicament m2("Tramadol", "Clorhidrat de tramadol", "RX", 50);
-    m2.afisare();
-
-    Medicament m3("Theraflu", 650);
-    m3.afisare();
-
-    Medicament m5; 
-    m5.afisare();
-
-    //atribuire 
-    m5 = m2; 
-    m5.afisare();
-    cout << endl;
-
-    // !=
-    if (m5 != m3) {
-        cout << "Medicamentele " << m5.getNume() << " si " << m3.getNume() << " au substante active diferite." << endl;
-    }
-    else {
-        cout << "Medicamentele " << m5.getNume() << " si " << m3.getNume() << " au aceeasi substanta activa." << endl;
+    cout << endl << "Afisare Vector Doctori :" << endl;
+    for (int i = 0; i < n; i++) {
+        cout << vd[i];
     }
 
-    // += 
-    m5 += 10;
-    m5.afisare();
-    cout << endl;
+    if (vd != NULL) {     //dezalocare memorie vector
+        delete[]vd;
+    }
 
-    // ()
-    cout << "Gramaj per pastila pentru medicamentul " << m5.getNume() << " : " << m5(40) << " mg" << endl << endl;
+    cout << endl << "-------------------------" << endl;
 
 
-    //functii globale prietene 
-    marireSalariuSiNrAngajati(d2, 800, s2, 1);
-    cout << "Salariul marit al doctorului " << d2.getNume() << " : " << d2.getSalariu() << " lei" << endl;
-    cout << "Numarul marit de angajati al spitalului " << s2.getNume() << " : " << s2.getNrAngajati() << endl << endl;
+    //Citire + Afisare Vector Spitale
+    cout << endl << "Citire Vector Spitale :" << endl;
+    for (int i = 0; i < 3; i++) {
+        cin >> s[i];
+    }
 
-    schimbareInMedicamentCuReteta(m3);
-    m3.afisare();
+    cout << endl << "-------------------------" << endl;
+
+    cout << endl << "Afisare Vector Spitale :" << endl;
+    for (int i = 0; i < 3; i++) {
+        cout << s[i];
+    }
+
+    cout << endl << "----------------------------" << endl;
+
+    //Citire + Afisare Vector Medicamente
+    cout << endl << "Citire Vector Medicamente :" << endl;
+    for (int i = 0; i < 3;i++) {
+        cin >> m[i];
+    }
+
+    cout << endl << "----------------------------" << endl;
+
+    cout << endl << "Afisare Vector Medicamente :" << endl;
+    for (int i = 0; i < 3;i++) {
+        cout << m[i];
+    }
+
+    cout << endl << "-------------------------" << endl;
+
+    //Matrice Doctori
+    Doctor matDoctori[2][3];   //matrice alocata static
+    cout << endl << "Citire Matrice Doctori :" << endl;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++) {
+            cin >> matDoctori[i][j];
+        }
+
+    cout << endl << "-------------------------" << endl;
+
+    cout << endl << "Afisare Matrice Doctori :" << endl;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++) {
+            cout << matDoctori[i][j];
+        }
+
+
+    Doctor** md;      //matrice alocata dinamic
+    int a, b; 
+    cout << "Numar linii a = "; 
+    cin >> a; 
+    cout << "Numar coloane b = "; 
+    cin >> b; 
+
+    md = new Doctor * [a]; 
+    for (int i = 0; i < a; i++) {
+        md[i] = new Doctor[b];
+    }
+
+    cout << endl << "Citire Matrice Doctori :" << endl;
+    for (int i = 0; i < a; i++)
+        for (int j = 0; j < b; j++) {
+            cin >> md[i][j];
+        }
+
+    cout << endl << "-------------------------" << endl;
+
+    cout << endl << "Afisare Matrice Doctori :" << endl;
+    for (int i = 0; i < a; i++)
+        for (int j = 0; j < b; j++) {
+            cout << md[i][j];
+        }
 }
