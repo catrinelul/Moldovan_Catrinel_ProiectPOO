@@ -1,4 +1,5 @@
 #include <iostream>
+#include<fstream>
 using namespace std;
 
 //Domeniu: MediCina (Moldovan Catrinel)
@@ -110,7 +111,7 @@ public:
     }
 
     //operator afisare
-    friend ostream& operator<<(ostream& consola, Doctor& d) {     //nu e metoda !! (chiar daca am facut implementarea 'inline' in interiorul clasei); e functie prietena, deci nu o pot apela in main prin obiect (din cauza asta nu vedea operatorul) 
+    friend ostream& operator<<(ostream& consola, const Doctor& d) {     //nu e metoda !! (chiar daca am facut implementarea 'inline' in interiorul clasei); e functie prietena, deci nu o pot apela in main prin obiect (din cauza asta nu vedea operatorul) 
         consola << endl << "Nume: " << d.nume << endl;
         consola << "Anul nasterii: " << d.anNastere << endl;
         consola << "Specializare: " << d.specializare << endl;
@@ -169,6 +170,55 @@ public:
 
     //declar prietena functia globala
     friend void marireSalariuSiNrAngajati(Doctor& d, float a, Spital& s, int b);
+
+
+    //operatori fisiere
+    //operator scriere in fisier << - doar pt fisiere text !
+    friend ofstream& operator<<(ofstream& fisier, const Doctor& d) {
+        fisier << d.nume << "\n" << d.anNastere << "\n" << d.specializare << "\n" << d.salariu << "\n" << d.salariuMinim;
+        return fisier;
+    }
+
+    //operator citire din fisier >> - doar pt fisiere text ! 
+    friend ifstream& operator>>(ifstream& fisier, Doctor& d) {
+        fisier >> d.nume;
+        int val = 0;
+        fisier >> val; //citire fake an - pt atribut constant ; practic trb sa sar peste valoarea sa din fisier 
+        if (d.specializare != NULL) {
+            delete[]d.specializare;
+        }
+        char temp[100];
+        fisier >> temp;
+        d.specializare = new char[strlen(temp) + 1];
+        strcpy_s(d.specializare, strlen(temp) + 1, temp);
+
+        fisier >> d.salariu;
+        fisier >> val; //citire fake salariu minim - pt atribut static
+
+        return fisier;
+    }
+
+    //operator scriere in fisier binar  
+    fstream& scriereFisierBinar(fstream& fisierBinar) {
+        fisierBinar.write((char*)this->specializare, (sizeof(char) * strlen(this->specializare)));
+        fisierBinar.write((char*)&this->anNastere, sizeof(int)); 
+        fisierBinar.write((char*)&this->salariu, sizeof(float)); 
+        fisierBinar.write((char*)&this->salariuMinim, sizeof(int));
+        fisierBinar.close();
+        return fisierBinar;
+    }
+
+    //operator citire din fisier binar
+    fstream& citireFisierBinar(fstream& fisierBinar) {
+        fisierBinar.read((char*)this->specializare, (sizeof(char) * strlen((this->specializare) + 1)));
+        int val = 0; 
+        fisierBinar.read((char*)&val, sizeof(int));
+        fisierBinar.read((char*)&this->salariu, sizeof(float));
+        int sal = 0; 
+        fisierBinar.read((char*)&sal, sizeof(int));
+        fisierBinar.close();
+        return fisierBinar;
+    }
 
 };
 int Doctor::salariuMinim = 2080;    //initializare atribut static
@@ -366,6 +416,56 @@ public:
     //declar prietena functia globala
     friend void marireSalariuSiNrAngajati(Doctor& d, float a, Spital& s, int b);
 
+
+    //metoda scriere atribut cu atribut in fisier binar
+    fstream& scriereFisierBinar(fstream& fisierBinar) {
+        //size_t lungimeStringNume = this->nume.length();              //salvez lungimea string-ului inainte de a-l scrie => pt a-l putea citi din fisier dupa
+        //fisierBinar.write((char*)&lungimeStringNume, sizeof(size_t));
+        //fisierBinar.write((char*)this->nume.c_str(), lungimeStringNume);
+
+        fisierBinar.write((char*)this->oras, (sizeof(char) * strlen((this->oras)+1)));
+
+       /* size_t lungimeStringDomeniu = this->domeniu.length();
+        fisierBinar.write((char*)&lungimeStringDomeniu, sizeof(size_t));
+        fisierBinar.write((char*)this->domeniu.c_str(), lungimeStringDomeniu);*/
+
+        fisierBinar.write((char*)&this->anInfiintare, sizeof(int));
+        fisierBinar.write((char*)&this->nrAngajati, sizeof(int));
+        fisierBinar.write((char*)&this->suprafataMinimaSalon, sizeof(int));
+        fisierBinar.close();
+        return fisierBinar;
+    }
+
+
+    //metoda citire atribut cu atribut din fisier binar
+    fstream& citireFisierBinar(fstream& fisierBinar) {
+       /* size_t lungimeStringNume;
+        fisierBinar.read((char*)&lungimeStringNume, sizeof(size_t));
+        char* temp = new char[lungimeStringNume + 1];
+        fisierBinar.read(temp, lungimeStringNume);
+        temp[lungimeStringNume] = '\0';
+        this->nume = temp;
+        delete[] temp;*/
+
+        fisierBinar.read((char*)this->oras, (sizeof(char) * strlen((this->oras)+1)));
+
+        /*size_t lungimeStringDomeniu;
+        fisierBinar.read((char*)&lungimeStringDomeniu, sizeof(size_t));
+        char* temp1 = new char[lungimeStringDomeniu + 1];
+        fisierBinar.read(temp1, lungimeStringDomeniu);
+        temp1[lungimeStringNume] = '\0';
+        this->domeniu = temp1;
+        delete[] temp1;*/
+
+        int an = 0;
+        fisierBinar.read((char*)&an, sizeof(int));
+        fisierBinar.read((char*)&this->nrAngajati, sizeof(int));
+        int val = 0;
+        fisierBinar.read((char*)&val, sizeof(int));
+        fisierBinar.close();
+        return fisierBinar;
+    }
+
 };
 int Spital::suprafataMinimaSalon = 20;   //initializare atribut static
 
@@ -541,6 +641,40 @@ public:
     //declar prietena functia globala
     friend void schimbareInMedicamentCuReteta(Medicament& m);
 
+    //operatori fisier text
+    //operator scriere in fisier text << 
+    friend ofstream& operator<<(ofstream& fisier, const Medicament& m) {
+        fisier << m.nume << "\n" << m.substantaActiva << "\n" << m.tip << "\n" << m.gramaj << "\n" << m.TVA;
+        return fisier;
+    }
+
+    //operator citire din fisier text >> 
+    friend ifstream& operator>>(ifstream& fisier, Medicament& m) {
+        fisier >> m.nume;
+        string aux;
+        fisier >> aux; //citire fake pt atribut constant 
+        if (m.tip != NULL) {
+            delete[]m.tip;
+        }
+        char temp[50];
+        fisier >> temp;
+        m.tip = new char[strlen(temp) + 1];
+        strcpy_s(m.tip, strlen(temp) + 1, temp);
+
+        fisier >> m.gramaj;
+        int val = 0;
+        fisier >> val; //citire fake pt atribut static
+
+        return fisier;
+    }
+
+    /*void test() {
+        cout << this << endl;
+        cout << this->nume << endl;
+        cout << (*this).nume << endl;
+        cout << &this->nume << endl;
+        cout << &this->substantaActiva << endl;
+    }*/
 };
 int Medicament::TVA = 9;   //initializare atribut static 
 
@@ -556,7 +690,7 @@ public:
     //constructor 
     Farmacie() {
         this->nume = "HelpNet";
-        this->oras = "Bucuresti"; 
+        this->oras = "Bucuresti";
         this->nrMedicamente = 2;
         this->medicamente = new Medicament[this->nrMedicamente];
     }
@@ -576,9 +710,9 @@ public:
     //constructor de copiere
     Farmacie(const Farmacie& f) {
         this->nume = f.nume;
-        this->oras = f.oras; 
-        this->nrMedicamente = f.nrMedicamente; 
-        this->medicamente = new Medicament[f.nrMedicamente]; 
+        this->oras = f.oras;
+        this->nrMedicamente = f.nrMedicamente;
+        this->medicamente = new Medicament[f.nrMedicamente];
         for (int i = 0; i < f.nrMedicamente; i++) {
             this->medicamente[i] = f.medicamente[i];
         }
@@ -587,13 +721,13 @@ public:
 
     //operator de atribuire = 
     Farmacie& operator=(const Farmacie f) {
-        this->nume = f.nume; 
-        this->oras = f.oras; 
-        this->nrMedicamente = f.nrMedicamente; 
+        this->nume = f.nume;
+        this->oras = f.oras;
+        this->nrMedicamente = f.nrMedicamente;
         if (this->medicamente != NULL) {
             delete[]this->medicamente;
         }
-        this->medicamente = new Medicament[f.nrMedicamente]; 
+        this->medicamente = new Medicament[f.nrMedicamente];
         for (int i = 0; i < f.nrMedicamente; i++) {
             this->medicamente[i] = f.medicamente[i];
         }
@@ -661,7 +795,7 @@ public:
 
     //operator functie()
     int operator()() {     //calcul nr de medicamente cu substanta activa ibuprofen
-        int nr = 0; 
+        int nr = 0;
         for (int i = 0; i < this->nrMedicamente; i++) {
             if (this->medicamente[i].getSubstantaActiva() == "Ibuprofen") {
                 nr += 1;
@@ -673,9 +807,9 @@ public:
     //operator afisare <<
     friend ostream& operator<<(ostream& consola, Farmacie f) {
         consola << endl << "Nume farmacie: " << f.nume << endl;
-        consola << "Oras: " << f.oras << endl; 
-        consola << "Nr medicamente: " << f.nrMedicamente << endl; 
-        consola << "Vector medicamente: " << endl; 
+        consola << "Oras: " << f.oras << endl;
+        consola << "Nr medicamente: " << f.nrMedicamente << endl;
+        consola << "Vector medicamente: " << endl;
         for (int i = 0; i < f.nrMedicamente; i++) {
             consola << endl << "Nume: " << f.medicamente[i].getNume() << endl;
             consola << "Substanta activa: " << f.medicamente[i].getSubstantaActiva() << endl;
@@ -689,18 +823,18 @@ public:
 
     //operator citire >> 
     friend istream& operator>>(istream& input, Farmacie& f) {
-        cout << endl << "Nume farmacie: "; 
-        input >> f.nume; 
-        cout << "Oras: "; 
-        input >> f.oras; 
-        cout << "Nr medicamente: "; 
-        input >> f.nrMedicamente; 
+        cout << endl << "Nume farmacie: ";
+        input >> f.nume;
+        cout << "Oras: ";
+        input >> f.oras;
+        cout << "Nr medicamente: ";
+        input >> f.nrMedicamente;
         if (f.medicamente != NULL) {
             delete[]f.medicamente;
         }
         f.medicamente = new Medicament[f.nrMedicamente];
 
-        cout << "Vector medicamente: "; 
+        cout << "Vector medicamente: ";
         for (int i = 0; i < f.nrMedicamente; i++) {
             input >> f.medicamente[i];
         }
@@ -727,37 +861,51 @@ void schimbareInMedicamentCuReteta(Medicament& m) {
 
 
 void main() {
-    Medicament vm[3];
+    Doctor d1;
+    cin >> d1;
 
-    //Citire + Afisare Vector Medicamente
-    cout << endl << "Citire Vector Medicamente :" << endl;
-    for (int i = 0; i < 3;i++) {
-        cin >> vm[i];
-    }
+    ofstream fisierDoctor("fisierDoctor.txt", ios::out);
+    fisierDoctor << d1;
 
-    cout << endl << "----------------------------" << endl;
+    Doctor d2;
+    ifstream fileInput("fisierDoctor.txt", ios::in);
+    fileInput >> d2;
+    cout << d2;
 
-    cout << endl << "Afisare Vector Medicamente :" << endl;
-    for (int i = 0; i < 3;i++) {
-        cout << vm[i];
-    }
+    Medicament m1;
+    cin >> m1;
 
-    cout << endl << "----------------------------" << endl;
+    ofstream fisierMed("fisierMedicament.txt", ios::out);
+    fisierMed << m1;
 
-    Farmacie f("Dr.Max", "Timisoara", vm, 3);
+    Medicament m2;
+    ifstream fisierInput("fisierMedicament.txt", ios::in);
+    fisierInput >> m2;
+    cout << m2; 
 
-    cout << "Nume farmacie: " << f.getNume() << endl;
-    cout << "Oras farmacie: " << f.getOras() << endl;
-    cout << "Nr medicamente farmacie: " << f.getNrMedicamente() << endl;
-    //Medicament* m = f.getMedicamente();     //salvez in variabila adresa/pointer-ul vectorului de medicamente
-    // cout << "Medicamente farmacie: " << m[0].getNume() << endl;  
-    cout << "Medicamente farmacie: " << endl; 
-    f.afisareVectorMedicamente(); 
-    cout << endl;
+    fstream fisierBinar("fisierBinar.cat", ios::binary | ios::out);
+    Spital s1;
+    cin >> s1;
 
-    cout << "Nr de medicamente cu substanta activa ibuprofen ale farmaciei " << f.getNume() << ": " << f() << endl;
+    s1.scriereFisierBinar(fisierBinar);
 
-    Farmacie f2;
-    cin >> f2;
-    cout << f2;
+    fstream fisierBCitire("fisierBinar.cat", ios::binary | ios::in);
+    Spital s2 ("bubu", 2080, 50);
+    s2.citireFisierBinar(fisierBCitire);
+    cout << s2;
+
+    fstream fisier("fisierBinarDoctor.bruh", ios::binary | ios::out); 
+    Doctor d3; 
+    cin >> d3; 
+
+    d3.scriereFisierBinar(fisier); 
+
+    fstream fisierCitire("fisierBinarDoctor.bruh", ios::binary | ios::in);
+    Doctor d4; 
+    d4.citireFisierBinar(fisierCitire);
+    cout << d4;
+
+    /*Medicament m;
+    m.test();*/
+
 }
