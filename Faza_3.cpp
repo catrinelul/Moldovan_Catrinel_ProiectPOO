@@ -201,8 +201,8 @@ public:
     //operator scriere in fisier binar  
     fstream& scriereFisierBinar(fstream& fisierBinar) {
         fisierBinar.write((char*)this->specializare, (sizeof(char) * strlen(this->specializare)));
-        fisierBinar.write((char*)&this->anNastere, sizeof(int)); 
-        fisierBinar.write((char*)&this->salariu, sizeof(float)); 
+        fisierBinar.write((char*)&this->anNastere, sizeof(int));
+        fisierBinar.write((char*)&this->salariu, sizeof(float));
         fisierBinar.write((char*)&this->salariuMinim, sizeof(int));
         fisierBinar.close();
         return fisierBinar;
@@ -211,10 +211,10 @@ public:
     //operator citire din fisier binar
     fstream& citireFisierBinar(fstream& fisierBinar) {
         fisierBinar.read((char*)this->specializare, (sizeof(char) * strlen((this->specializare) + 1)));
-        int val = 0; 
+        int val = 0;
         fisierBinar.read((char*)&val, sizeof(int));
         fisierBinar.read((char*)&this->salariu, sizeof(float));
-        int sal = 0; 
+        int sal = 0;
         fisierBinar.read((char*)&sal, sizeof(int));
         fisierBinar.close();
         return fisierBinar;
@@ -423,11 +423,11 @@ public:
         //fisierBinar.write((char*)&lungimeStringNume, sizeof(size_t));
         //fisierBinar.write((char*)this->nume.c_str(), lungimeStringNume);
 
-        fisierBinar.write((char*)this->oras, (sizeof(char) * strlen((this->oras)+1)));
+        fisierBinar.write((char*)this->oras, (sizeof(char) * strlen((this->oras) + 1)));
 
-       /* size_t lungimeStringDomeniu = this->domeniu.length();
-        fisierBinar.write((char*)&lungimeStringDomeniu, sizeof(size_t));
-        fisierBinar.write((char*)this->domeniu.c_str(), lungimeStringDomeniu);*/
+        /* size_t lungimeStringDomeniu = this->domeniu.length();
+         fisierBinar.write((char*)&lungimeStringDomeniu, sizeof(size_t));
+         fisierBinar.write((char*)this->domeniu.c_str(), lungimeStringDomeniu);*/
 
         fisierBinar.write((char*)&this->anInfiintare, sizeof(int));
         fisierBinar.write((char*)&this->nrAngajati, sizeof(int));
@@ -439,15 +439,15 @@ public:
 
     //metoda citire atribut cu atribut din fisier binar
     fstream& citireFisierBinar(fstream& fisierBinar) {
-       /* size_t lungimeStringNume;
-        fisierBinar.read((char*)&lungimeStringNume, sizeof(size_t));
-        char* temp = new char[lungimeStringNume + 1];
-        fisierBinar.read(temp, lungimeStringNume);
-        temp[lungimeStringNume] = '\0';
-        this->nume = temp;
-        delete[] temp;*/
+        /* size_t lungimeStringNume;
+         fisierBinar.read((char*)&lungimeStringNume, sizeof(size_t));
+         char* temp = new char[lungimeStringNume + 1];
+         fisierBinar.read(temp, lungimeStringNume);
+         temp[lungimeStringNume] = '\0';
+         this->nume = temp;
+         delete[] temp;*/
 
-        fisierBinar.read((char*)this->oras, (sizeof(char) * strlen((this->oras)+1)));
+        fisierBinar.read((char*)this->oras, (sizeof(char) * strlen((this->oras) + 1)));
 
         /*size_t lungimeStringDomeniu;
         fisierBinar.read((char*)&lungimeStringDomeniu, sizeof(size_t));
@@ -843,6 +843,203 @@ public:
     }
 };
 
+//------------- FAZA 7 ---------------//
+
+class SpitalPediatric : public Spital {
+private:
+    int nrMediciPediatri;
+    int nrSaloaneIncubatoare;
+    int* nrIncubatoareSalon;
+
+public:
+    //constructor fara parametri
+    SpitalPediatric() : Spital() {
+        this->nrMediciPediatri = 10;
+        this->nrSaloaneIncubatoare = 3;
+        this->nrIncubatoareSalon = new int[this->nrSaloaneIncubatoare];
+        for (int i = 0; i < this->nrSaloaneIncubatoare; i++) {
+            this->nrIncubatoareSalon[i] = i + 2;
+        }
+    }
+
+    //destructor
+    ~SpitalPediatric() {
+        if (this->nrIncubatoareSalon != NULL) {
+            delete[]this->nrIncubatoareSalon;
+        }
+    }
+
+    //constructor de copiere
+    SpitalPediatric(const SpitalPediatric& sp) :Spital(sp) {
+        this->nrMediciPediatri = sp.nrMediciPediatri;
+        this->nrSaloaneIncubatoare = sp.nrSaloaneIncubatoare;
+        this->nrIncubatoareSalon = new int[sp.nrSaloaneIncubatoare];
+        for (int i = 0; i < this->nrSaloaneIncubatoare; i++) {
+            this->nrIncubatoareSalon[i] = sp.nrIncubatoareSalon[i];
+        }
+    }
+
+    //constructor cu toti parametrii (ai clasei de baza + derivata)
+    SpitalPediatric(string nume, const char* oras, string domeniu, const int an, int nr, int nrMediciPediatri, int nrSaloaneIncubatoare, int* nrIncubatoareSalon) : Spital(nume, oras, domeniu, an, nr) {
+        this->nrMediciPediatri = nrMediciPediatri;
+        this->nrSaloaneIncubatoare = nrSaloaneIncubatoare;
+        this->nrIncubatoareSalon = new int[nrSaloaneIncubatoare];
+        for (int i = 0; i < nrSaloaneIncubatoare; i++) {
+            this->nrIncubatoareSalon[i] = nrIncubatoareSalon[i];
+        }
+    }
+
+    SpitalPediatric& operator=(const SpitalPediatric& sp) {
+        if (this != &sp) {
+            (Spital)*this = sp;
+            this->nrMediciPediatri = sp.nrMediciPediatri;
+            this->nrSaloaneIncubatoare = sp.nrSaloaneIncubatoare;
+            this->nrIncubatoareSalon = new int[sp.nrSaloaneIncubatoare];
+            for (int i = 0; i < sp.nrSaloaneIncubatoare; i++) {
+                this->nrIncubatoareSalon[i] = sp.nrIncubatoareSalon[i];
+            }
+        }
+        return *this;
+    }
+
+    //getteri 
+    int getNrMediciPediatri() {
+        return this->nrMediciPediatri;
+    }
+
+    int getNrSaloaneIncubatoare() {
+        return this->nrSaloaneIncubatoare;
+    }
+
+    /*int getNrIncubatoareSalon(int nrSalon) {
+        if (nrSalon > 0) {
+            return this->nrIncubatoareSalon[nrSalon - 1];
+        }
+    }*/
+
+    void afisareNrIncubatoarePerSalon() {
+        cout << endl;
+        for (int i = 0; i < this->nrSaloaneIncubatoare; i++) {
+            cout << "Nr incubatoare pt salonul " << i + 1 << ": " << this->nrIncubatoareSalon[i] << endl;
+        }
+    }
+
+    //setteri
+    void setNrMediciPediatri(int nr) {
+        this->nrMediciPediatri = nr;
+    }
+
+    void setNrSaloaneIncubatoare(int nr) {
+        this->nrSaloaneIncubatoare = nr;
+    }
+
+    void setNrIncubatoareSalon(int* vnr, int nr) {
+        if (this->nrIncubatoareSalon != NULL) {
+            delete[]this->nrIncubatoareSalon;
+        }
+        this->nrIncubatoareSalon = new int[nr];
+        for (int i = 0; i < nr; i++) {
+            this->nrIncubatoareSalon[i] = vnr[i];
+        }
+    }
+
+    //operator << 
+    friend ostream& operator<<(ostream& consola, SpitalPediatric& sp) {
+        consola << (Spital)sp; 
+        consola << "Nr medici pediatri: " << sp.nrMediciPediatri << endl; 
+        consola << "Nr saloane cu incubatoare: " << sp.nrSaloaneIncubatoare << endl;
+        consola << "Nr incubatoare per salon: "; 
+        for (int i = 0; i < sp.nrSaloaneIncubatoare; i++) {
+            cout << sp.nrIncubatoareSalon[i] << " ";
+        }
+        return consola; 
+    }
+
+    ////operator >> 
+    //friend istream& operator>>(istream& input, SpitalPediatric& sp) {
+    //    input >> (Spital)sp;
+    //    return input; 
+    //}
+};
+
+class Chirurg : public Doctor {
+private: 
+    char* specializareChirurgie;
+    int nrOperatiiPerSaptamana; 
+
+public: 
+    //constructor fara parametri
+    Chirurg() :Doctor() {
+        this->nrOperatiiPerSaptamana = 5;
+        this->specializareChirurgie = new char[strlen("generala") + 1]; 
+        strcpy_s(this->specializareChirurgie, strlen("generala") + 1, "generala");
+    }
+
+    //destructor
+    ~Chirurg() {
+        if (this->specializareChirurgie != NULL) {
+            delete[]this->specializareChirurgie;
+        }
+    }
+
+    //constructor de copiere
+    Chirurg(const Chirurg& c) : Doctor(c) {
+        this->nrOperatiiPerSaptamana = c.nrOperatiiPerSaptamana;
+        this->specializareChirurgie = new char[strlen(c.specializareChirurgie) + 1];
+        strcpy_s(this->specializareChirurgie, strlen(c.specializareChirurgie) + 1, c.specializareChirurgie);
+    }
+
+    //constructor cu toti parametri (clasa de baza + derivata)
+    Chirurg(string nume, const char* specializare, float salariu, const int an, const char* specializareChirurgie, int nrOperatii): Doctor(nume, specializare, salariu, an) {
+        this->nrOperatiiPerSaptamana = nrOperatii;
+        this->specializareChirurgie = new char[strlen(specializareChirurgie) + 1];
+        strcpy_s(this->specializareChirurgie, strlen(specializareChirurgie) + 1, specializareChirurgie);
+    }
+
+    //operator = 
+    Chirurg& operator=(const Chirurg& c) {
+        this->nrOperatiiPerSaptamana = c.nrOperatiiPerSaptamana;
+        if (this->specializareChirurgie != NULL) {
+            delete[]this->specializareChirurgie;
+        }
+        this->specializareChirurgie = new char[strlen(c.specializareChirurgie) + 1];
+        strcpy_s(this->specializareChirurgie, strlen(c.specializareChirurgie) + 1, c.specializareChirurgie);
+    }
+
+    //operator << 
+    friend ostream& operator<<(ostream& consola, const Chirurg& c) {
+        consola << (Doctor)c;
+        consola << "Specializare chirurgie: " << c.specializareChirurgie << endl;
+        consola << "Nr operatii per saptamana: " << c.nrOperatiiPerSaptamana << endl;
+        return consola;
+    }
+
+    //getteri 
+    int getNrOperatiiSaptamana() {
+        return this->nrOperatiiPerSaptamana;
+    }
+
+    char* getSpecializareChirurgie() {
+        return this->specializareChirurgie;
+    }
+
+    //setteri
+    void setNrOperatiiSaptamana(int nr) {
+        if (nr >= 0) {
+            this->nrOperatiiPerSaptamana = nr;
+        }
+    }
+
+    void setSpecializareChirurgie(const char* specializare) {
+        if (this->specializareChirurgie != NULL) {
+            delete[]this->specializareChirurgie;
+        }
+        this->specializareChirurgie = new char[strlen(specializare) + 1]; 
+        strcpy_s(this->specializareChirurgie, strlen(specializare) + 1, specializare);
+    }
+
+};
+
 
 //functii globale 
 void marireSalariuSiNrAngajati(Doctor& d, float a, Spital& s, int b) {
@@ -861,51 +1058,40 @@ void schimbareInMedicamentCuReteta(Medicament& m) {
 
 
 void main() {
-    Doctor d1;
-    cin >> d1;
+    SpitalPediatric sp1; 
+    cout << sp1 << endl;
 
-    ofstream fisierDoctor("fisierDoctor.txt", ios::out);
-    fisierDoctor << d1;
+    int* v = new int[2] {3, 4};
+    SpitalPediatric sp2("Medicover", "Cluj", "Privat", 1995, 300, 4, 2, v);
+    cout << sp2 << endl;
 
-    Doctor d2;
-    ifstream fileInput("fisierDoctor.txt", ios::in);
-    fileInput >> d2;
-    cout << d2;
+    SpitalPediatric sp3(sp2);
+    cin >> sp3; //upcasting 
+    cout << sp3 << endl;
 
-    Medicament m1;
-    cin >> m1;
+    cout << "Nr medici pediatri ai spitalului pediatric " << sp3.getNume() << " : " << sp3.getNrMediciPediatri() << endl;
+    cout << "Nr saloane cu incubatoare ale spitalului pediatric " << sp3.getNume() << " : " << sp3.getNrSaloaneIncubatoare() << endl;
+    cout << "Nr incubatoare per salon ale spitalului pediatric " << sp3.getNume() << " : ";
+    sp3.afisareNrIncubatoarePerSalon();
+    cout << endl;
 
-    ofstream fisierMed("fisierMedicament.txt", ios::out);
-    fisierMed << m1;
+    sp3.setNrMediciPediatri(7);
+    int nr = 3;
+    int* v1 = new int[nr] {5, 3, 2};
+    sp3.setNrSaloaneIncubatoare(nr);
+    sp3.setNrIncubatoareSalon(v1, nr);
+    cout << sp3 << endl;
 
-    Medicament m2;
-    ifstream fisierInput("fisierMedicament.txt", ios::in);
-    fisierInput >> m2;
-    cout << m2; 
+    Chirurg c1; 
+    cout << c1; 
 
-    fstream fisierBinar("fisierBinar.cat", ios::binary | ios::out);
-    Spital s1;
-    cin >> s1;
+    Chirurg c2("Ivan", "Chirurgie", 10000, 1980, "plastica", 6); 
+    cout << (Doctor)c2; 
+    cout << "Specializare chirurgie pt doctorul chirurg " << c2.getNume() << ": " << c2.getSpecializareChirurgie() << endl;
+    cout << "Nr operatii per saptamana pt chirurgul " << c2.getNume() << ": " << c2.getNrOperatiiSaptamana() << endl;
 
-    s1.scriereFisierBinar(fisierBinar);
-
-    fstream fisierBCitire("fisierBinar.cat", ios::binary | ios::in);
-    Spital s2 ("bubu", 2080, 50);
-    s2.citireFisierBinar(fisierBCitire);
-    cout << s2;
-
-    fstream fisier("fisierBinarDoctor.bruh", ios::binary | ios::out); 
-    Doctor d3; 
-    cin >> d3; 
-
-    d3.scriereFisierBinar(fisier); 
-
-    fstream fisierCitire("fisierBinarDoctor.bruh", ios::binary | ios::in);
-    Doctor d4; 
-    d4.citireFisierBinar(fisierCitire);
-    cout << d4;
-
-    /*Medicament m;
-    m.test();*/
-
+    Chirurg c3(c2); 
+    c3.setNrOperatiiSaptamana(9); 
+    c3.setSpecializareChirurgie("dentara"); 
+    cout << c3; 
 }
